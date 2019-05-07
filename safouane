@@ -1,0 +1,184 @@
+
+#include <stdlib.h>
+#include <stdio.h>
+#include <SDL/SDL.h>
+#include <SDL/SDL_image.h>
+
+
+
+
+/**
+* @file main.c
+* @brief Testing Program.
+* @author C Team
+* @version 0.1
+* @date Apr 01, 2015
+*
+* Testing program for background scrollilng
+*
+*/
+
+
+
+SDL_Color GetPixel(SDL_Surface *pSurface,int x,int y)
+{
+SDL_Color color;
+Uint32 col=0;
+//Determine position
+char* pPosition=(char* ) pSurface->pixels;
+pPosition+= (pSurface->pitch * y);
+pPosition+= (pSurface->format->BytesPerPixel *x);
+memcpy(&col ,pPosition ,pSurface->format->BytesPerPixel);
+//convertir color
+SDL_GetRGB(col,pSurface->format, &color.r, &color.g, &color.b);
+return (color);
+}
+
+
+
+
+
+int comparer (SDL_Color obs ,SDL_Color col)
+{
+if((obs.r==col.r)&&(obs.b==col.b)&&(obs.g==col.g))
+return (1);
+else
+ return (0);
+} 
+
+
+
+
+
+
+int main()
+{
+   SDL_Surface *background=NULL ,*menu=NULL, *screen=NULL , *joueur=NULL , *texte=NULL ;
+   SDL_Rect positionjoueur,positionbackground , positionmenu, positioncurs , positiontxt ;
+int x, y,h,w ;
+  TTF_Font *police = NULL;
+
+
+
+    SDL_Init(SDL_INIT_VIDEO);
+	TTF_Init();
+    joueur=IMG_Load("joueur.gif");
+    screen = SDL_SetVideoMode(900, 900, 32, SDL_HWSURFACE | SDL_DOUBLEBUF);
+    background=IMG_Load("background.bmp");
+    menu=IMG_Load("menu.bmp");
+
+
+    positionjoueur.x=20;
+    positionjoueur.y=300;
+    positionjoueur.w=joueur->w;
+    positionjoueur.h=joueur->h;
+
+    positionbackground.x=0;
+    positionbackground.y=0;
+    positionbackground.w=background->w;
+    positionbackground.h=background->h;
+
+    positionmenu.x=0;
+    positionmenu.y=0;
+    positionmenu.w=background->w;
+    positionmenu.h=background->h;
+
+
+
+
+    while(1)
+{
+
+
+
+ SDL_Event event ;
+ SDL_WaitEvent(&event);
+ if(event.type==SDL_QUIT){break;}
+
+ else if (event.type==SDL_KEYDOWN)
+ {
+
+  	if(event.key.keysym.sym==SDLK_RIGHT)
+  {
+  	 positionjoueur.x+=10;
+
+  if(  positionjoueur.y!=300)
+   positionjoueur.y+=100;
+  }
+  if(event.key.keysym.sym==SDLK_LEFT)
+  {
+  	 positionjoueur.x-=10;
+
+  if(  positionjoueur.y!=300)
+   positionjoueur.y+=100;
+ 
+  }
+
+
+  if(event.key.keysym.sym==SDLK_UP)
+  {
+  	 positionjoueur.y-=100;
+  }
+
+
+ }
+
+ int collision=0,i=0;
+int t[8][2] ;
+SDL_Color couleur_obstacle={255,255,255};
+
+x=positionjoueur.x;
+y=positionjoueur.y;
+w=positionjoueur.w;
+h=positionjoueur.h;
+
+t[0][0]= x;
+t[1][0]= (x+w) /2;
+t[2][0]= x+w;
+t[3][0]= x;
+t[4][0]= x;
+t[5][0]= (x+w)/2;
+t[6][0]= x+w;
+t[7][0]= x+w;
+
+t[0][1]= y;
+t[1][1]= y;
+t[2][1]= y;
+t[3][1]= (y+h)/2;
+t[4][1]= y+h;
+t[5][1]= +h;
+t[6][1]= y+h;
+t[7][1]= (y+h)/2;
+
+
+
+
+while ((i<8)&&(collision==0))
+{
+if(comparer(couleur_obstacle,GetPixel(background,t[i][0],t[i][1]))==1)
+{collision=1;
+positionjoueur.x+=65;}
+else i++;
+}
+
+           SDL_FillRect(screen, 0, SDL_MapRGB(screen->format, 255,255, 255));
+            SDL_BlitSurface(background,NULL,screen,&positionbackground);
+            SDL_BlitSurface(joueur ,NULL, screen, &positionjoueur );
+            SDL_Flip( screen );
+
+
+
+
+}//fin while(1)
+
+    SDL_FreeSurface(background);
+    SDL_FreeSurface(joueur);
+
+    SDL_Quit();
+
+
+return (0) ;
+
+
+
+}
