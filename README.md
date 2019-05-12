@@ -37,7 +37,7 @@ SDL_Flip(screen);
 }
 
 void afficher_pers(perso *p,SDL_Surface *screen,int *frame)
-{
+{ 
 SDL_BlitSurface(p->p[*frame],NULL,screen,&p->pp);
 SDL_Flip(screen);
 }
